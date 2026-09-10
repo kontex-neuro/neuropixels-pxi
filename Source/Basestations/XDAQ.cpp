@@ -562,6 +562,11 @@ void XDAQ_BS::stopAcquisition()
         probe->stopAcquisition();
     }
 
+    // Probe stop only signals exit. Join before arm clears software queues and
+    // before a later start reuses buffers: a consumer may still hold a local batch.
+    for (auto probe : probes)
+        probe->waitForThreadToExit (-1);
+
     if (adcSource != nullptr)
         adcSource->stopAcquisition();
 
